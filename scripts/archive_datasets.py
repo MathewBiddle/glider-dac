@@ -10,6 +10,7 @@ import os
 import hashlib
 import logging
 import shutil
+import xattr
 
 logger = logging.getLogger('archive_datasets')
 _DEP_CACHE = None
@@ -71,7 +72,22 @@ def make_copy(filepath):
         except (IOError, OSError):
             logger.exception("Could not hard link to file {}".format(source))
             return
-    generate_hash(target)
+    try:
+        md5sum_xattr = xattr.getxattr(filepath, "user.md5sum")
+    # IOError here indicates that the xattr for the md5sum hasn't been written
+    # yet, so start processing the hash
+    except IOError:
+        generate_hash(target)
+    else:
+        with open("{}.md5".format(filepath)) as f:
+            md5sum_file_contents = f.read()
+        # Does the md5sum in the dedicated file match the xattr value?
+        # If yes, we already have this file.
+        # If no, we need to process this file as the contents have likely
+        # changed.
+        if md5sum_file_contents != md5sum_xattr:
+            generate_hash(target)
+
     if os.path.exists(do_not_archive_filename):
         try:
             logger.info("Removing DO NOT ARCHIVE File")
@@ -89,9 +105,12 @@ def generate_hash(filepath):
     hasher = hashlib.md5()
     hashfile(filepath, hasher)
     md5sum = filepath + '.md5'
+    hash_value = hasher.hexdigest()
     with open(md5sum, 'w') as f:
-        f.write(hasher.hexdigest())
+        f.write(hash_value)
+        xattr.setxattr(f, "user.md5sum", hash_value)
     logger.info("Hash generated")
+
 
 
 def hashfile(filepath, hasher, blocksize=65536):
@@ -173,7 +192,10 @@ def main(args):
         set_verbose()
     for filepath in get_active_deployment_paths():
         logger.info("Archiving %s", filepath)
-        make_copy(filepath)
+        try:
+            make_copy(filepath)
+        except:
+            logger.exception("Failed processing for file path {}".format(filepath))
 
     active_deployments = [d['name'] for d in get_active_deployments()]
     for filename in os.listdir(NCEI_DIR):
