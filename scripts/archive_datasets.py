@@ -12,6 +12,7 @@ import logging
 import shutil
 from glider_dac.common import log_formatter
 import xattr
+import re
 
 logger = logging.getLogger('archive_datasets')
 _DEP_CACHE = None
@@ -56,6 +57,30 @@ def get_active_deployment_paths():
         yield filepath
 
 
+def rename_archive_filename(filepath: str) -> str:
+    """
+    Rename a string according to NCEI archival rules
+    NCEI expects "<deployment_id_with_numbers_letters_underscore>-<datetime(YYYYMMDDTHHMM{optional SS})>"
+
+    :param str filepath: Original file name
+    :return: Transfomred file name, or original file name if it was not possible
+             to parse
+    :rtype str:
+    """
+    matches = re.search(r"^([A-Za-z0-9_-]+)-([0-9]{4}(?:1[0-2]|0[1-9])(?:3[01]|0[1-9]|[12][0-9])T(?:2[0-3]|[01][0-9])(?:[0-5][0-9])(?:[0-5][0-9])?).*?(-delayed)?$",
+                        filepath)
+    if matches is None:
+        logger.warning(f"Could not rename archival deployment {filepath}, "
+                       "keeping old name")
+        return filepath
+    elif len(matches.groups()) == 3 and matches.group(3):
+        glider_identifier = f"{matches.group(1)}_delayed"
+    else:
+        glider_identifier = matches.group(1)
+    # Is there trailing "-delayed" at the end?  If so, move it before the date
+    # string
+    return f"{glider_identifier.replace('-', '_')}-{matches.group(2)}"
+
 def make_copy(filepath):
     '''
     Creates a copy via hard link of the file specified in the new NCEI_DIR
@@ -64,7 +89,8 @@ def make_copy(filepath):
     '''
     logger.info("Running archival for {}".format(filepath))
     filename = os.path.basename(filepath)
-    target = os.path.join(NCEI_DIR, filename)
+    target_filename = rename_archive_filename(filepath)
+    target = os.path.join(NCEI_DIR, target_filename)
     do_not_archive_filename = target + DNA_SUFFIX
     source = filepath
     if not os.path.exists(target):
