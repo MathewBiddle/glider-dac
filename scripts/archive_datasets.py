@@ -2,7 +2,7 @@
 '''
 Script to create hard links of archivable datasets and generate an MD5 sum
 '''
-from config import API_URL, NCEI_DIR, path2pub
+from .config import API_URL, NCEI_DIR, path2pub
 import requests
 import argparse
 import sys

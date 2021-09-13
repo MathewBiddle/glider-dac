@@ -16,7 +16,7 @@ from glider_dac.common import log_formatter
 logger = logging.getLogger('back_to_s3')
 
 # S3 stuff
-from config import AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, BUCKET_NAME
+from .config import AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, BUCKET_NAME
 
 conn = boto.connect_s3(AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY)
 bucket = conn.create_bucket(BUCKET_NAME, location=boto.s3.connection.Location.DEFAULT)

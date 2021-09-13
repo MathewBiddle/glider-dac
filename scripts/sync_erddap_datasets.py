@@ -11,7 +11,7 @@ from datetime import datetime, timezone, timedelta
 from glider_dac import app, db
 from glider_dac.common import log_formatter
 
-from config import *
+from .config import *
 
 logger = logging.getLogger(__name__)
 ch = logging.StreamHandler()
