@@ -67,7 +67,7 @@ def rename_archive_filename(filepath: str) -> str:
              to parse
     :rtype str:
     """
-    matches = re.search(r"^([A-Za-z0-9_-]+)-([0-9]{4}(?:1[0-2]|0[1-9])(?:3[01]|0[1-9]|[12][0-9])T(?:2[0-3]|[01][0-9])(?:[0-5][0-9])(?:[0-5][0-9])?).*?(-delayed)?$",
+    matches = re.search(r"^([A-Za-z0-9_-]+)-([0-9]{4}(?:1[0-2]|0[1-9])(?:3[01]|0[1-9]|[12][0-9])T(?:2[0-3]|[01][0-9])(?:[0-5][0-9])(?:[0-5][0-9])?).*?(-delayed)?\.ncCF\.nc3\.nc$",
                         filepath)
     if matches is None:
         logger.warning(f"Could not rename archival deployment {filepath}, "
@@ -79,7 +79,7 @@ def rename_archive_filename(filepath: str) -> str:
         glider_identifier = matches.group(1)
     # Is there trailing "-delayed" at the end?  If so, move it before the date
     # string
-    return f"{glider_identifier.replace('-', '_')}-{matches.group(2)}"
+    return f"{glider_identifier.replace('-', '_')}-{matches.group(2)}.ncCF.nc3.nc"
 
 def make_copy(filepath):
     '''
