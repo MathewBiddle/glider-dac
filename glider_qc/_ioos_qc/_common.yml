@@ -1,0 +1,22 @@
+---
+## Tests common to all variables
+
+flat_line_test:
+  suspect_threshold: 4
+  fail_threshold: 8
+  tolerance: 1
+
+spike_test:
+  suspect_threshold: 5  # realistic?
+  fail_threshold: 8  # realistic?
+
+rate_of_change_test:
+  # threshold is expressed as a rate in observations units per second.
+  threshold: 10  # realistic, too high?
+
+density_inversion_test:
+  suspect_threshold: 0.1  # realistic?
+  fail_threshold: 0.2  # realistic?
+
+location_test:
+  range_max: 12000  # meters

@@ -1,0 +1,7 @@
+---
+density:
+
+  qartod:
+
+    gross_range_test:
+      fail_span: [900, 1050]

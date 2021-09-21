@@ -1,2 +1,3 @@
 pytest
+-e git+https://github.com/asascience-open/python3-debug-utils@v1.0.0#egg=python3-debug-utils
 -r requirements.txt

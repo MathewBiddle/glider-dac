@@ -1,0 +1,7 @@
+---
+temperature:
+
+  qartod:
+
+    gross_range_test:
+      fail_span: [-5., 45.]

@@ -18,14 +18,14 @@ import hashlib
 log = logging.getLogger(__name__)
 __RCONN = None
 
-
 class ProcessError(ValueError):
     pass
 
-
 class GliderQC(object):
+
     def __init__(self, ncfile, config_file=None):
         self.ncfile = ncfile
+
         if config_file is not None:
             self.load_config(config_file)
 
@@ -44,8 +44,10 @@ class GliderQC(object):
         ]
 
         for standard_name in valid_standard_names:
+
             ncvar = self.ncfile.get_variables_by_attributes(standard_name=standard_name)
             if len(ncvar) == 1:
+
                 variables.append(ncvar[0].name)
         return variables
 
@@ -58,16 +60,20 @@ class GliderQC(object):
         '''
         valid_variables = []
         ancillary_variables = getattr(ncvariable, 'ancillary_variables', None)
+
         if isinstance(ancillary_variables, str):
             ancillary_variables = ancillary_variables.split(' ')
         else:
             return []
         for varname in ancillary_variables:
+
             if varname not in self.ncfile.variables:
                 log.warning("%s defined as ancillary variable but doesn't exist", varname)
                 continue
+
             if varname.endswith('_qc'):
                 valid_variables.append(varname)
+
             if 'status_flag' in getattr(self.ncfile.variables[varname], 'standard_name', ''):
                 valid_variables.append(varname)
 
@@ -80,13 +86,15 @@ class GliderQC(object):
         :param netCDF.Variable parent: Parent Variable
         :param netCDF.Variable child: Status Flag Variable
         '''
-
         ancillary_variables = getattr(parent, 'ancillary_variables', None)
+
         if isinstance(ancillary_variables, str) and len(ancillary_variables) > 0:
+
             ancillary_variables = ancillary_variables.split(' ')
         else:
             ancillary_variables = []
         ancillary_variables.append(child.name)
+
         parent.ancillary_variables = ' '.join(ancillary_variables)
 
     def needs_qc(self, ncvariable):
@@ -97,6 +105,7 @@ class GliderQC(object):
                                             variables for
         '''
         ancillary_variables = self.find_qc_flags(ncvariable)
+
         return len(ancillary_variables) == 0
 
     def create_qc_variables(self, ncvariable):
@@ -105,6 +114,7 @@ class GliderQC(object):
         '''
         name = ncvariable.name
         standard_name = ncvariable.standard_name
+
         dims = ncvariable.dimensions
         log.info("Creating QARTOD variables for %s", name)
 
@@ -115,7 +125,7 @@ class GliderQC(object):
                 'standard_name': '%(standard_name)s status_flag',
                 'flag_values': np.array([1, 2, 3, 4, 9], dtype=np.int8),
                 'flag_meanings': 'GOOD NOT_EVALUATED SUSPECT BAD MISSING',
-                'references': 'http://gliders.ioos.us/static/pdf/Manual-for-QC-of-Glider-Data_05_09_16.pdf',
+                'references': 'https://gliders.ioos.us/data/files/Manual-for-QC-of-Glider-Data_05_09_16.pdf',
                 'qartod_test': 'flat_line',
                 'dac_comment': 'ioos_qartod'
             },
@@ -125,7 +135,7 @@ class GliderQC(object):
                 'standard_name': '%(standard_name)s status_flag',
                 'flag_values': np.array([1, 2, 3, 4, 9], dtype=np.int8),
                 'flag_meanings': 'GOOD NOT_EVALUATED SUSPECT BAD MISSING',
-                'references': 'http://gliders.ioos.us/static/pdf/Manual-for-QC-of-Glider-Data_05_09_16.pdf',
+                'references': 'https://gliders.ioos.us/data/files/Manual-for-QC-of-Glider-Data_05_09_16.pdf',
                 'qartod_test': 'gross_range',
                 'dac_comment': 'ioos_qartod'
             },
@@ -135,7 +145,7 @@ class GliderQC(object):
                 'standard_name': '%(standard_name)s status_flag',
                 'flag_values': np.array([1, 2, 3, 4, 9], dtype=np.int8),
                 'flag_meanings': 'GOOD NOT_EVALUATED SUSPECT BAD MISSING',
-                'references': 'http://gliders.ioos.us/static/pdf/Manual-for-QC-of-Glider-Data_05_09_16.pdf',
+                'references': 'https://gliders.ioos.us/data/files/Manual-for-QC-of-Glider-Data_05_09_16.pdf',
                 'qartod_test': 'rate_of_change',
                 'dac_comment': 'ioos_qartod'
             },
@@ -145,7 +155,7 @@ class GliderQC(object):
                 'standard_name': '%(standard_name)s status_flag',
                 'flag_values': np.array([1, 2, 3, 4, 9], dtype=np.int8),
                 'flag_meanings': 'GOOD NOT_EVALUATED SUSPECT BAD MISSING',
-                'references': 'http://gliders.ioos.us/static/pdf/Manual-for-QC-of-Glider-Data_05_09_16.pdf',
+                'references': 'https://gliders.ioos.us/data/files/Manual-for-QC-of-Glider-Data_05_09_16.pdf',
                 'qartod_test': 'spike',
                 'dac_comment': 'ioos_qartod'
             },
@@ -155,7 +165,7 @@ class GliderQC(object):
                 'standard_name': '%(standard_name)s status_flag',
                 'flag_values': np.array([1, 2, 3, 4, 9], dtype=np.int8),
                 'flag_meanings': 'GOOD NOT_EVALUATED SUSPECT BAD MISSING',
-                'references': 'http://gliders.ioos.us/static/pdf/Manual-for-QC-of-Glider-Data_05_09_16.pdf',
+                'references': 'https://gliders.ioos.us/data/files/Manual-for-QC-of-Glider-Data_05_09_16.pdf',
                 'qartod_test': 'pressure',
                 'dac_comment': 'ioos_qartod'
             },
@@ -165,7 +175,7 @@ class GliderQC(object):
                 'standard_name': '%(standard_name)s status_flag',
                 'flag_values': np.array([1, 2, 3, 4, 9], dtype=np.int8),
                 'flag_meanings': 'GOOD NOT_EVALUATED SUSPECT BAD MISSING',
-                'references': 'http://gliders.ioos.us/static/pdf/Manual-for-QC-of-Glider-Data_05_09_16.pdf',
+                'references': 'https://gliders.ioos.us/data/files/Manual-for-QC-of-Glider-Data_05_09_16.pdf',
                 'dac_comment': 'ioos_qartod_primary'
             }
         }
@@ -175,22 +185,33 @@ class GliderQC(object):
         for tname, template in list(templates.items()):
             if tname == 'pressure' and standard_name != 'sea_water_pressure':
                 continue
-            variable_name = template['name'] % {'name': name}
 
+            variable_name = template['name'] % {'name': name}
             if variable_name not in self.ncfile.variables:
-                ncvar = self.ncfile.createVariable(variable_name, np.int8, dims, fill_value=np.int8(9))
+
+                ncvar = self.ncfile.createVariable(
+                    variable_name,
+                    np.int8,
+                    dims,
+                    fill_value=np.int8(9)
+                )
             else:
                 ncvar = self.ncfile.variables[variable_name]
 
             ncvar.units = '1'
             ncvar.standard_name = template['standard_name'] % {'standard_name': standard_name}
+
             ncvar.long_name = template['long_name'] % {'standard_name': standard_name}
             ncvar.flag_values = template['flag_values']
+
             ncvar.flag_meanings = template['flag_meanings']
             ncvar.references = template['references']
+
             ncvar.dac_comment = template['dac_comment']
+
             if 'qartod_test' in template:
                 ncvar.qartod_test = template['qartod_test']
+
             qcvariables.append(variable_name)
             self.append_ancillary_variable(ncvariable, ncvar)
 
@@ -200,8 +221,8 @@ class GliderQC(object):
         '''
         Loads a yaml file configuration for QC
         '''
-        path = path or 'data/qc_config.yml'
         log.info("Loading config from %s", path)
+
         with open(path, 'r') as f:
             self.config = yaml.load(f.read())
 
@@ -245,9 +266,10 @@ class GliderQC(object):
         if not qartod_test:
             return
         standard_name = getattr(ncvariable, 'standard_name').split(' ')[0]
-        parent = self.ncfile.get_variables_by_attributes(standard_name=standard_name)[0]
 
+        parent = self.ncfile.get_variables_by_attributes(standard_name=standard_name)[0]
         times, values, mask = self.get_unmasked(parent)
+
         # There's no data to QC
         if len(values) == 0:
             return
@@ -258,14 +280,19 @@ class GliderQC(object):
 
         test_params = {}
         if qartod_test in 'rate_of_change':
+
             times = ma.getdata(times[~mask])
             time_units = self.ncfile.variables['time'].units
+
             dates = np.array(num2date(times, time_units), dtype='datetime64[ms]')
             test_params['times'] = dates
+
             # Calculate the threshold value
             test_params['thresh_val'] = self.get_rate_of_change_threshold(values, times, time_units)
+
         elif qartod_test == 'spike':
             test_params['times'] = ma.getdata(times[~mask])
+
             test_params['low_thresh'], test_params['high_thresh'] = self.get_spike_thresholds(values)
         else:
             test_params = self.config[standard_name][qartod_test]
